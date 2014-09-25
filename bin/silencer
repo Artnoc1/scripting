@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Copyright (c) 2014, TOGGL LLC
+# All rights reserved.
+# Published under New BSD license
+set -o errexit
+
+COMMAND_TO_EXEC=$@
+
+source  '/opt/toggl/scripting/shared/generic_template.sh'
+
+ls -al /proc/$$/fd
+log "Running: ${COMMAND_TO_EXEC}"
+${COMMAND_TO_EXEC}
