@@ -8,6 +8,6 @@ noted otherwise.
 Files
 -----
 
-### Templates
- * `generic_template.sh` Basic logging and error handling, used as default .sh file template
+### Shared
+ * `gemeroc` Basic logging and error handling, used as default .sh file template
   
