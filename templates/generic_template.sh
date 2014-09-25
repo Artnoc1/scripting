@@ -4,31 +4,34 @@
 # Published under New BSD license
 
 # Error handling and logging
-LOG_NAME="`basename $0 .sh`.log"
-LAST_LINES_TO_SHOW_ON_ERROR=20
+LOG_FILE_NAME=${LOG_FILE_NAME:-"$(basename $0 .sh).log"}
+LOG_LINES_TO_SHOW_ON_ERROR=${LOG_LINES_TO_SHOW_ON_ERROR:-'20'}
 
 set -o pipefail
 set -o errtrace
 set -o nounset
 set -o errexit
 
-exec 3>&1 4>&2 # store original stdin in 3 and stderr in 4
-exec >> ${LOG_NAME}
-exec 2>&1 # Direct output to to file
+exec {FD_STDOUT}>&1
+exec {FD_STDERR}>&2
+
+exec >> ${LOG_FILE_NAME} 2>&1
 
 log() {
   echo "$(date) $1"
 }
 
 restore_file_descriptors() {
- exec 1>&3 2>&4 # restore original file descriptors
+  [ -a "/proc/$$/fd/${FD_STDOUT}" ] && exec 1>&${FD_STDOUT} {FD_STDOUT}>&-
+  [ -a "/proc/$$/fd/${FD_STDERR}" ] && exec 2>&${FD_STDERR} {FD_STDERR}>&-
 }
 
 err_handler() {
- restore_file_descriptors
- echo "Got error, see last ${LAST_LINES_TO_SHOW_ON_ERROR} lines of log"
- tail -n${LAST_LINES_TO_SHOW_ON_ERROR} ${LOG_NAME} 1>&2
- exit 10
+  local exit_status=$?
+  restore_file_descriptors
+  echo -e "\n\nGot error, showing ${LOG_LINES_TO_SHOW_ON_ERROR} lines of ${LOG_FILE_NAME}:\n" 1>&2
+  tail --lines=${LOG_LINES_TO_SHOW_ON_ERROR} ${LOG_FILE_NAME} 1>&2
+  exit ${exit_status}
 }
 
 trap err_handler ERR
