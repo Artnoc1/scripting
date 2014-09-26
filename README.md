@@ -7,7 +7,7 @@ noted otherwise.
 Installation
 ------------
 sudo mkdir -pv /opt/toggl 
-sudo git clone https://github.com/toggl/bash-fu.git /opt/toggl/scripting
+sudo git clone https://github.com/toggl/scripting /opt/toggl/scripting
 
 Files
 -----
