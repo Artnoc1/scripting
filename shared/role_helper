@@ -48,10 +48,10 @@ __finalize(){
     echo "${TOGGL_ROLE_VERSION}" > "${TOGGL_ROLE_VERSION_FILE}"
 
     [ -f "${TOGGL_ROLE_FILE_LIST}" ] && sort --unique --output="${TOGGL_ROLE_FILE_LIST}" "${TOGGL_ROLE_FILE_LIST}"
-    [ -f ${TOGGL_ROLE_NOTIFIER} ] && ${TOGGL_ROLE_NOTIFIER} "Added ${TOGGL_ROLE_NAME} (${TOGGL_ROLE_VERSION})"
+    [ -f ${TOGGL_ROLE_NOTIFIER} ] && ${TOGGL_ROLE_NOTIFIER} "Added ${TOGGL_ROLE_NAME}-${TOGGL_ROLE_VERSION}"
     exit 0
   else
-    [ -f "${TOGGL_ROLE_NOTIFIER}" ] && ${TOGGL_ROLE_NOTIFIER} "Failed to add ${TOGGL_ROLE_NAME}."
+    [ -f "${TOGGL_ROLE_NOTIFIER}" ] && ${TOGGL_ROLE_NOTIFIER} "Failed to add ${TOGGL_ROLE_NAME}-${TOGGL_ROLE_VERSION}"
     exit ${previous_status}
   fi
 }
