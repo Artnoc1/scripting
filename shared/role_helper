@@ -33,7 +33,7 @@ echo "Failed install" > "${TOGGL_ROLE_VERSION_FILE}"
 
 ###  public api, every proc has arguments re-mapped to local's
 
-tarck_path(){
+track_path(){
   local path_to_add=${1}
 
   echo "${path_to_add}" >> "${TOGGL_ROLE_FILE_LIST}"
