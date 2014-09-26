@@ -1,0 +1,9 @@
+#!/bin/sh
+# Copyright (c) TOGGL LLC
+# All rights reserved.
+# Published under New BSD license
+
+curl --location --silent  https://api.github.com/repos/toggl/scripting/tarball -o /tmp/toggl_scripting.tar.gz
+sudo mkdir -pv /opt/toggl/scripting
+sudo tar --strip 1 -xzvf /tmp/toggl_scripting.tar.gz -C /opt/toggl/scripting
+rm -vf /tmp/toggl_scripting.tar.gz
