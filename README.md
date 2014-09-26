@@ -13,12 +13,16 @@ Use git:
     sudo mkdir -pv /opt/toggl
     sudo git clone https://github.com/toggl/scripting /opt/toggl/scripting
 
-or curl tar:
+curl + tar:
 
     curl --location --silent  https://api.github.com/repos/toggl/scripting/tarball -o /tmp/toggl_scripting.tar.gz
     sudo mkdir -pv /opt/toggl/scripting
     tar --strip 1 -xzvf /tmp/toggl_scripting.tar.gz -C /opt/toggl/scripting
     rm -vf /tmp/toggl_scripting.tar.gz
+    
+bootstrap (using curl+tar version above):   
+
+    curl https://raw.githubusercontent.com/toggl/scripting/master/bin/bootstrap | sh
 
 Files
 -----
