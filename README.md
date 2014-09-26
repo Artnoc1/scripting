@@ -30,11 +30,16 @@ Files
 ### Bin
   Ready to run scripts.
 
- * `silencer` will run his argument and hide stderr and stdout, returning output
+ * `silencer`  
+    will run his argument and hide stderr and stdout, returning output
     lines only if argument exits with error. Designed to silence verbose things
     in cron, to receive email only on error
-
+ 
 ### Shared
   Files meant to be sourced by other scripts
 
- * `generic` Basic logging and error handling, default script template
+ * `generic`  
+   Basic logging and error handling, default script template
+ 
+ * `role_helper`  
+   Helper functions for server service/role manager

@@ -1,0 +1,59 @@
+# Copyright (c) TOGGL LLC
+# All rights reserved.
+# Published under New BSD license
+
+set -o pipefail # trace ERR through pipes
+set -o errtrace # trace ERR through functions
+set -o nounset  # fail if used unuset variable
+set -o errexit  # abort on first unsucessfull line
+
+# This file contains helpers for role manager.
+# following two variables must be set before including fhis file:
+[[ -z "${TOGGL_ROLE_NAME}" ]] && (echo 'Must set TOGGL_ROLE_NAME before sourcing'; exit 99)
+[[ -z "${TOGGL_ROLE_VERSION}" ]] && (echo 'Must set TOGGL_ROLE_VERSION before sourcing'; exit 99)
+
+### Config
+TOGGL_ROLE_CONFIG_PATH=${TOGGL_ROLE_CONFIG_PATH:-'/opt/toggl/scripting/etc'}
+TOGGL_ROLE_NOTIFIER=${TOGGL_ROLE_NOTIFIER:-'/usr/bin/team_notify'}
+
+TOGGL_ROLES_PATH=${TOGGL_ROLES_PATH:-"${TOGGL_ROLE_CONFIG_PATH}/roles"}
+TOGGL_ROLE_FILES_PATH=${TOGGL_ROLE_FILES_PATH:-"${TOGGL_ROLE_CONFIG_PATH}/files"}
+
+TOGGL_ROLE_VERSION_FILE="${TOGGL_ROLES_PATH}/${TOGGL_ROLE_NAME}"
+TOGGL_ROLE_FILE_LIST="${TOGGL_ROLE_FILES_PATH}/${TOGGL_ROLE_NAME}"
+
+### Housekeeping
+mkdir -vp "${TOGGL_ROLES_PATH}"
+mkdir -vp "${TOGGL_ROLE_FILES_PATH}"
+
+# Empty tracklist from previous runs
+[ -f "${TOGGL_ROLE_FILE_LIST}" ] && rm -v "${TOGGL_ROLE_FILE_LIST}"
+# Assume we don't finish
+echo "Failed install" > "${TOGGL_ROLE_VERSION_FILE}"
+
+###  public api, every proc has arguments re-mapped to local's
+
+tack_path(){
+  local path_to_add=${1}
+
+  echo "${path_to_add}" >> "${TOGGL_ROLE_FILE_LIST}"
+}
+
+### private stuff, do not call directly.
+
+__finalize(){
+  local previous_status=${?}
+
+  if [ ${previous_status} -eq 0 ]; then
+    echo "${TOGGL_ROLE_VERSION}" > "${TOGGL_ROLE_VERSION_FILE}"
+
+    [ -f "${TOGGL_ROLE_FILE_LIST}" ] && sort --unique --output="${TOGGL_ROLE_FILE_LIST}" "${TOGGL_ROLE_FILE_LIST}"
+    [ -f ${TOGGL_ROLE_NOTIFIER} ] && ${TOGGL_ROLE_NOTIFIER} "Added ${TOGGL_ROLE_NAME} (${TOGGL_ROLE_VERSION})"
+    exit 0
+  else
+    [ -f "${TOGGL_ROLE_NOTIFIER}" ] && ${TOGGL_ROLE_NOTIFIER} "Failed to add ${TOGGL_ROLE_NAME}."
+    exit ${previous_status}
+  fi
+}
+
+trap __finalize EXIT
