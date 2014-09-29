@@ -33,6 +33,12 @@ echo "Failed install" > "${TOGGL_ROLE_VERSION_FILE}"
 
 ###  public api, every proc has arguments re-mapped to local's
 
+package_installed() {
+  local package_name=${1}
+
+  dpkg --status ${package_name} >/dev/null || apt-get install ${package_name}
+}
+
 track_path(){
   local path_to_add=${1}
 
