@@ -39,17 +39,17 @@ package_installed() {
   dpkg --status ${package_name} >/dev/null || apt-get install ${package_name}
 }
 
-track_path(){
-  local path_to_add=${1}
-
-  echo "${path_to_add}" >> "${TOGGL_ROLE_FILE_LIST}"
-}
-
 save_heredoc_in(){
   local target_file=${1}
 
   track_path "${target_file}"
   cat - > "${target_file}"
+}
+
+track_path(){
+  local path_to_add=${1}
+
+  echo "${path_to_add}" >> "${TOGGL_ROLE_FILE_LIST}"
 }
 
 ### private stuff, do not call directly.
