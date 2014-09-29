@@ -39,6 +39,13 @@ track_path(){
   echo "${path_to_add}" >> "${TOGGL_ROLE_FILE_LIST}"
 }
 
+save_heredoc_in(){
+  local target_file=${1}
+
+  track_path "${target_file}"
+  cat - > "${target_file}"
+}
+
 ### private stuff, do not call directly.
 
 __finalize(){
