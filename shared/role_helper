@@ -48,9 +48,12 @@ init_d_refresh() {
 }
 
 package_installed() {
-  local package_name=${1}
+  # package names as arguments
 
-  dpkg --status ${package_name} >/dev/null || apt-get install ${package_name}
+  for package_name in "$@"
+  do
+    dpkg --status ${package_name} >/dev/null || apt-get install ${package_name}
+  done
 }
 
 save_heredoc_in(){
