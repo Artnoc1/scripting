@@ -33,6 +33,13 @@ echo "Failed install" > "${TOGGL_ROLE_VERSION_FILE}"
 
 ###  public api, every proc has arguments re-mapped to local's
 
+init_d_refresh() {
+  local script_name=${1}
+
+  (/etc/init.d/${script_name} status && /etc/init.d/${script_name} force-reload) || true
+  /etc/init.d/${script_name} status || /etc/init.d/${script_name} start
+}
+
 package_installed() {
   local package_name=${1}
 
