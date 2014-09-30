@@ -2,6 +2,13 @@
 # All rights reserved.
 # Published under New BSD license
 
+# This file provides:
+
+# init_d_refresh - start init.d script if not started, else force-reload
+# package_installed - apt-get install only if not installed
+# save_heredoc_in - puts heredoc into file and adds file to tracking list
+# track_path - adds file to tracking list
+
 set -o pipefail # trace ERR through pipes
 set -o errtrace # trace ERR through functions
 set -o nounset  # fail if used unuset variable
