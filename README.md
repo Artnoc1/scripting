@@ -1,7 +1,7 @@
 bash-fu
 =======
 
-Bash helpers and templates. Uses bash commands and POSIX utilities unless 
+Bash helpers and templates. Uses curl, bash commands and ubuntu utilities unless 
 noted otherwise. It is assumed that all files from this repository can be
 found in `/opt/toggl/scripting`
 
@@ -15,6 +15,7 @@ Use git:
 
 curl + tar:
 
+    dpkg --status curl >/dev/null || apt-get install -y curl
     curl --location --silent  https://api.github.com/repos/toggl/scripting/tarball -o /tmp/toggl_scripting.tar.gz
     sudo mkdir -pv /opt/toggl/scripting
     tar --strip 1 -xzvf /tmp/toggl_scripting.tar.gz -C /opt/toggl/scripting
