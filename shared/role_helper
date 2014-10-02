@@ -6,6 +6,7 @@
 
 # init_d_refresh - start init.d script if not started, else force-reload
 # package_installed - apt-get install only if not installed
+# run_file_as_user - runs executable as other user, fixing file permissions
 # save_heredoc_in - puts heredoc into file and adds file to tracking list
 # track_path - adds file to tracking list
 
@@ -54,6 +55,21 @@ package_installed() {
   do
     dpkg --status ${package_name} >/dev/null || apt-get install ${package_name}
   done
+}
+
+run_file_as_user(){
+  local file_to_run=${1}
+  local target_user=${2}
+
+  local current_path=$(pwd)
+  cd $(dirname ${file_to_run})
+
+  chmod a+x ${file_to_run}
+  chown ${target_user} ${file_to_run}
+  sudo -iu ${target_user} ${file_to_run}
+
+  rm -rvf ${file_to_run}
+  cd ${current_path}
 }
 
 save_heredoc_in(){
