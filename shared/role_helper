@@ -81,6 +81,8 @@ save_heredoc_in(){
 track_path(){
   local path_to_add=${1}
 
+  mkdir -vp $(dirname ${path_to_add})
+  [ -f "${path_to_add}" ] || touch ${path_to_add}
   echo "${path_to_add}" >> "${TOGGL_ROLE_FILE_LIST}"
 }
 
