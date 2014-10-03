@@ -68,7 +68,6 @@ run_file_as_user(){
   chown ${target_user} ${file_to_run}
   sudo -iu ${target_user} ${file_to_run}
 
-  rm -rvf ${file_to_run}
   cd ${current_path}
 }
 
