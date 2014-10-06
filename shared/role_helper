@@ -10,6 +10,7 @@
 # run_file_as_user - runs executable as other user, fixing file permissions
 # save_heredoc_in - puts heredoc into file and adds file to tracking list
 # track_path - adds file to tracking list
+# upstart_sudo_launcher - sudoers file allowing use single service upstart
 
 set -o pipefail # trace ERR through pipes
 set -o errtrace # trace ERR through functions
@@ -97,6 +98,43 @@ track_path(){
   mkdir -vp $(dirname ${path_to_add})
   [ -f "${path_to_add}" ] || touch ${path_to_add}
   echo "${path_to_add}" >> "${TOGGL_ROLE_FILE_LIST}"
+}
+
+upstart_sudo_launcher(){
+  local service_name=${1}
+  local user_name=${2}
+  local sudoers_file="/etc/sudoers.d/${service_name}"
+  local stop_start_file="/usr/bin/${service_name}_force_restart"
+
+  for action_name in start status reload restart stop; do
+    local launcher_path="/usr/bin/${service_name}_${action_name}"
+    save_heredoc_in "${launcher_path}" <<-COMMAND_SCRIPT
+#!/bin/sh
+/sbin/${action_name} ${service_name}
+COMMAND_SCRIPT
+    chmod a+x ${launcher_path}
+  done
+
+
+  save_heredoc_in "${stop_start_file}" <<-COMMAND_SCRIPT
+#!/bin/sh
+(/sbin/stop ${service_name} || true) && /sbin/start ${service_name}
+COMMAND_SCRIPT
+  chmod a+x ${stop_start_file}
+
+
+   save_heredoc_in ${sudoers_file} <<-SUDOERS
+#check with  visudo -c -f ${sudoers_file}
+${user_name} ALL=(ALL) NOPASSWD: /usr/bin/${service_name}_start
+${user_name} ALL=(ALL) NOPASSWD: /usr/bin/${service_name}_status
+${user_name} ALL=(ALL) NOPASSWD: /usr/bin/${service_name}_reload
+${user_name} ALL=(ALL) NOPASSWD: /usr/bin/${service_name}_restart
+${user_name} ALL=(ALL) NOPASSWD: /usr/bin/${service_name}_stop
+${user_name} ALL=(ALL) NOPASSWD: ${stop_start_file}
+SUDOERS
+
+  visudo -c -f ${sudoers_file} || (rm -rvf ${sudoers_file} && echo 'invalid sudoers file' && exit 1)
+  chmod 0440 ${sudoers_file}
 }
 
 ### private stuff, do not call directly.
