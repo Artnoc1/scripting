@@ -129,9 +129,10 @@ track_path(){
 }
 
 upstart_sudo_launcher(){
-  local service_name=${1}
+  local upstart_service_name=${1}
   local user_name=${2}
   local upstart_args=${3:-''}
+  local service_name=${4:-"${1}"}
   local sudoers_file="/etc/sudoers.d/${service_name}"
   local stop_start_file="/usr/bin/${service_name}_force_restart"
 
@@ -139,7 +140,7 @@ upstart_sudo_launcher(){
     local launcher_path="/usr/bin/${service_name}_${action_name}"
     save_heredoc_in "${launcher_path}" <<-COMMAND_SCRIPT
 #!/bin/sh
-/sbin/${action_name} ${service_name} ${upstart_args}
+/sbin/${action_name} ${upstart_service_name} ${upstart_args}
 COMMAND_SCRIPT
     chmod a+x ${launcher_path}
   done
@@ -147,7 +148,7 @@ COMMAND_SCRIPT
 
   save_heredoc_in "${stop_start_file}" <<-COMMAND_SCRIPT
 #!/bin/sh
-(/sbin/stop ${service_name} ${upstart_args} || true) && /sbin/start ${service_name} ${upstart_args}
+(/sbin/stop ${upstart_service_name} ${upstart_args} || true) && /sbin/start ${upstart_service_name} ${upstart_args}
 COMMAND_SCRIPT
   chmod a+x ${stop_start_file}
 
