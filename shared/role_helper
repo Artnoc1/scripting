@@ -9,6 +9,7 @@
 # role_required - fails unless role given as argument is installed
 # run_file_as_user - runs executable as other user, fixing file permissions
 # save_heredoc_in - puts heredoc into file and adds file to tracking list
+# syslog_tag_rotate - directs syslog tag to separate file and log rotates it
 # track_path - adds file to tracking list
 # upstart_sudo_launcher - sudoers file allowing use single service upstart
 
@@ -90,6 +91,33 @@ save_heredoc_in(){
 
   track_path "${target_file}"
   cat - > "${target_file}"
+}
+
+syslog_tag_rotate(){
+  local syslog_tag=${1}
+
+  save_heredoc_in "/etc/rsyslog.d/12-${syslog_tag}.conf" <<-CONFIG
+  :syslogtag, isequal, "${syslog_tag}:" -/var/log/${syslog_tag}/service.log
+  & ~
+CONFIG
+
+  reload rsyslog >/dev/null 2>&1 || true
+
+  save_heredoc_in "/etc/logrotate.d/${syslog_tag}.conf" <<-CONFIG
+/var/log/${syslog_tag}/*.log {
+  daily
+  missingok
+  rotate 14
+  compress
+  delaycompress
+  notifempty
+  minsize 200M
+  sharedscripts
+  postrotate
+     reload rsyslog >/dev/null 2>&1 || true
+  endscript
+}
+CONFIG
 }
 
 track_path(){
