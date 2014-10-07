@@ -5,6 +5,7 @@
 # This file provides:
 
 # init_d_refresh - start init.d script if not started, else force-reload
+# logrotate_for - adds common log-rotate to path
 # package_installed - apt-get install only if not installed
 # role_required - fails unless role given as argument is installed
 # run_file_as_user - runs executable as other user, fixing file permissions
@@ -49,6 +50,28 @@ init_d_refresh() {
 
   (/etc/init.d/${script_name} status && /etc/init.d/${script_name} force-reload) || true
   /etc/init.d/${script_name} status || /etc/init.d/${script_name} start
+}
+
+logrotate_for() {
+  local service_name=${1}
+  local log_path=${2}
+  local postrotate_command=${3:-'true'}
+
+  save_heredoc_in "/etc/logrotate.d/${service_name}.conf" <<-CONFIG
+${log_path} {
+  daily
+  missingok
+  rotate 14
+  compress
+  delaycompress
+  notifempty
+  minsize 200M
+  sharedscripts
+  postrotate
+     ${postrotate_command}
+  endscript
+}
+CONFIG
 }
 
 package_installed() {
@@ -102,22 +125,7 @@ syslog_tag_rotate(){
 CONFIG
 
   reload rsyslog >/dev/null 2>&1 || true
-
-  save_heredoc_in "/etc/logrotate.d/${syslog_tag}.conf" <<-CONFIG
-/var/log/${syslog_tag}/*.log {
-  daily
-  missingok
-  rotate 14
-  compress
-  delaycompress
-  notifempty
-  minsize 200M
-  sharedscripts
-  postrotate
-     reload rsyslog >/dev/null 2>&1 || true
-  endscript
-}
-CONFIG
+  logrotate_for "${syslog_tag}" "/var/log/${syslog_tag}/*.log" "reload rsyslog >/dev/null 2>&1 || true"
 }
 
 track_path(){
