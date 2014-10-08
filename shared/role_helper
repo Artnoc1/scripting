@@ -34,9 +34,20 @@ TOGGL_ROLE_FILES_PATH=${TOGGL_ROLE_FILES_PATH:-"${TOGGL_ROLE_CONFIG_PATH}/files"
 TOGGL_ROLE_VERSION_FILE="${TOGGL_ROLES_PATH}/${TOGGL_ROLE_NAME}"
 TOGGL_ROLE_FILE_LIST="${TOGGL_ROLE_FILES_PATH}/${TOGGL_ROLE_NAME}"
 
+PREVIOUS_ROLE_VERSION='(none)'
+
 ### Housekeeping
 mkdir -vp "${TOGGL_ROLES_PATH}"
 mkdir -vp "${TOGGL_ROLE_FILES_PATH}"
+
+# Terminate early
+if [ -f "${TOGGL_ROLE_VERSION_FILE}" ] ; then
+   PREVIOUS_ROLE_VERSION=$(cat "${TOGGL_ROLE_VERSION_FILE}")
+   if [ "${TOGGL_ROLE_VERSION}" == "${PREVIOUS_ROLE_VERSION}" ]; then
+    echo "${TOGGL_ROLE_NAME}-${TOGGL_ROLE_VERSION} is already installed, exiting"
+    exit 0
+   fi
+fi
 
 # Empty tracklist from previous runs
 [ -f "${TOGGL_ROLE_FILE_LIST}" ] && rm -v "${TOGGL_ROLE_FILE_LIST}"
@@ -184,10 +195,10 @@ __finalize(){
     echo "${TOGGL_ROLE_VERSION}" > "${TOGGL_ROLE_VERSION_FILE}"
 
     [ -f "${TOGGL_ROLE_FILE_LIST}" ] && sort --unique --output="${TOGGL_ROLE_FILE_LIST}" "${TOGGL_ROLE_FILE_LIST}"
-    [ -f ${TOGGL_ROLE_NOTIFIER} ] && ${TOGGL_ROLE_NOTIFIER} "Added ${TOGGL_ROLE_NAME}-${TOGGL_ROLE_VERSION}"
+    [ -f ${TOGGL_ROLE_NOTIFIER} ] && ${TOGGL_ROLE_NOTIFIER} "${TOGGL_ROLE_NAME} ${PREVIOUS_ROLE_VERSION}->${TOGGL_ROLE_VERSION}"
     exit 0
   else
-    [ -f "${TOGGL_ROLE_NOTIFIER}" ] && ${TOGGL_ROLE_NOTIFIER} "Failed to add ${TOGGL_ROLE_NAME}-${TOGGL_ROLE_VERSION}"
+    [ -f "${TOGGL_ROLE_NOTIFIER}" ] && ${TOGGL_ROLE_NOTIFIER} "Failed to uprade ${TOGGL_ROLE_NAME}  ${PREVIOUS_ROLE_VERSION}->${TOGGL_ROLE_VERSION}"
     exit ${previous_status}
   fi
 }
