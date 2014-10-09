@@ -25,6 +25,8 @@ set -o errexit  # abort on first unsucessfull line
 [[ -z "${TOGGL_ROLE_VERSION}" ]] && (echo 'Must set TOGGL_ROLE_VERSION before sourcing'; exit 99)
 
 ### Config
+TOGGL_ROLE_FAILED_MESSAGE=${TOGGL_ROLE_FAILED_MESSAGE:-'Failed install'}
+
 TOGGL_ROLE_CONFIG_PATH=${TOGGL_ROLE_CONFIG_PATH:-'/opt/toggl/scripting/etc'}
 TOGGL_ROLE_NOTIFIER=${TOGGL_ROLE_NOTIFIER:-'/usr/bin/team_notify'}
 
@@ -52,7 +54,7 @@ fi
 # Empty tracklist from previous runs
 [ -f "${TOGGL_ROLE_FILE_LIST}" ] && rm -v "${TOGGL_ROLE_FILE_LIST}"
 # Assume we don't finish
-echo "Failed install" > "${TOGGL_ROLE_VERSION_FILE}"
+echo "${TOGGL_ROLE_FAILED_MESSAGE}" > "${TOGGL_ROLE_VERSION_FILE}"
 
 ###  public api, every proc has arguments re-mapped to local's
 
@@ -99,6 +101,10 @@ role_required() {
   local role_path="${TOGGL_ROLES_PATH}/${role_name}"
 
  if [ -f "${role_path}" ]; then
+   if [ "${TOGGL_ROLE_FAILED_MESSAGE}" == "$(cat "${role_path}")" ]; then
+     >&2 echo "Role ${role_name} is in failed state"
+     exit 10
+   fi
    echo "Role ${role_name} $(cat ${role_path}) detected"
  else
    >&2 echo "Role ${role_name} must be installed first"
