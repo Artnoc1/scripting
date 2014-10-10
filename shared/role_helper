@@ -129,6 +129,7 @@ run_file_as_user(){
 save_heredoc_in(){
   local target_file=${1}
 
+  mkdir -vp "$(dirname ${target_file})"
   track_path "${target_file}"
   cat - > "${target_file}"
 }
