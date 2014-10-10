@@ -6,8 +6,7 @@ set -o errexit
 
 COMMAND_TO_EXEC=$@
 
-source  '/opt/toggl/scripting/shared/generic_template.sh'
+source  '/opt/toggl/scripting/shared/generic'
 
-ls -al /proc/$$/fd
 log "Running: ${COMMAND_TO_EXEC}"
 ${COMMAND_TO_EXEC}
