@@ -43,12 +43,14 @@ mkdir -vp "${TOGGL_ROLES_PATH}"
 mkdir -vp "${TOGGL_ROLE_FILES_PATH}"
 
 # Terminate early
-if [ -f "${TOGGL_ROLE_VERSION_FILE}" ] ; then
-   PREVIOUS_ROLE_VERSION=$(cat "${TOGGL_ROLE_VERSION_FILE}")
-   if [ "${TOGGL_ROLE_VERSION}" == "${PREVIOUS_ROLE_VERSION}" ]; then
-    echo "${TOGGL_ROLE_NAME}-${TOGGL_ROLE_VERSION} is already installed, exiting"
-    exit 0
-   fi
+if [ ! "{TOGGL_ROLE_VERSION}"='*' ]; then
+  if [ -f "${TOGGL_ROLE_VERSION_FILE}" ] ; then
+     PREVIOUS_ROLE_VERSION=$(cat "${TOGGL_ROLE_VERSION_FILE}")
+     if [ "${TOGGL_ROLE_VERSION}" == "${PREVIOUS_ROLE_VERSION}" ]; then
+      echo "${TOGGL_ROLE_NAME}-${TOGGL_ROLE_VERSION} is already installed, exiting"
+      exit 0
+     fi
+  fi
 fi
 
 # Empty tracklist from previous runs
