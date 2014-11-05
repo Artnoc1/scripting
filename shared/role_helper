@@ -144,7 +144,7 @@ syslog_tag_rotate(){
   & ~
 CONFIG
 
-  reload rsyslog >/dev/null 2>&1 || true
+  /sbin/restart rsyslog >/dev/null 2>&1
   logrotate_for "${syslog_tag}" "/var/log/${syslog_tag}/*.log" "reload rsyslog >/dev/null 2>&1 || true"
 }
 
