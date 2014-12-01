@@ -39,6 +39,7 @@ TOGGL_ROLE_FILE_LIST="${TOGGL_ROLE_FILES_PATH}/${TOGGL_ROLE_NAME}"
 PREVIOUS_ROLE_VERSION='(none)'
 
 ### Housekeeping
+[ -x  etckeeper ] && etckeeper unclean && (echo "Etc directory dirty, verify and commit changes"; exit 10)
 mkdir -vp "${TOGGL_ROLES_PATH}"
 mkdir -vp "${TOGGL_ROLE_FILES_PATH}"
 
@@ -204,9 +205,11 @@ __finalize(){
     echo "${TOGGL_ROLE_VERSION}" > "${TOGGL_ROLE_VERSION_FILE}"
 
     [ -f "${TOGGL_ROLE_FILE_LIST}" ] && sort --unique --output="${TOGGL_ROLE_FILE_LIST}" "${TOGGL_ROLE_FILE_LIST}"
+    [ -x etckeeper ] && etckeeper commit "${TOGGL_ROLE_NAME} ${PREVIOUS_ROLE_VERSION}->${TOGGL_ROLE_VERSION}"
     [ -f ${TOGGL_ROLE_NOTIFIER} ] && ${TOGGL_ROLE_NOTIFIER} "${TOGGL_ROLE_NAME} ${PREVIOUS_ROLE_VERSION}->${TOGGL_ROLE_VERSION}"
     exit 0
   else
+    [ -x etckeeper ] && etckeeper commit "${TOGGL_ROLE_NAME} ${PREVIOUS_ROLE_VERSION}->${TOGGL_ROLE_VERSION} (failed install)"
     [ -f "${TOGGL_ROLE_NOTIFIER}" ] && ${TOGGL_ROLE_NOTIFIER} "Failed to uprade ${TOGGL_ROLE_NAME}  ${PREVIOUS_ROLE_VERSION}->${TOGGL_ROLE_VERSION}"
     exit ${previous_status}
   fi
