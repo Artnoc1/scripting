@@ -206,11 +206,11 @@ __finalize(){
     echo "${TOGGL_ROLE_VERSION}" > "${TOGGL_ROLE_VERSION_FILE}"
 
     [ -f "${TOGGL_ROLE_FILE_LIST}" ] && sort --unique --output="${TOGGL_ROLE_FILE_LIST}" "${TOGGL_ROLE_FILE_LIST}"
-    [ -x "${ETCKEEPER}" ] && ${ETCKEEPER} commit "${TOGGL_ROLE_NAME} ${PREVIOUS_ROLE_VERSION}->${TOGGL_ROLE_VERSION}"
+    [ -x "${ETCKEEPER}" ] && ((${ETCKEEPER} unclean && ${ETCKEEPER} commit "${TOGGL_ROLE_NAME} ${PREVIOUS_ROLE_VERSION}->${TOGGL_ROLE_VERSION}") || true )
     [ -f ${TOGGL_ROLE_NOTIFIER} ] && ${TOGGL_ROLE_NOTIFIER} "${TOGGL_ROLE_NAME} ${PREVIOUS_ROLE_VERSION}->${TOGGL_ROLE_VERSION}"
     exit 0
   else
-    [ -x "${ETCKEEPER}" ] && ${ETCKEEPER} commit "${TOGGL_ROLE_NAME} ${PREVIOUS_ROLE_VERSION}->${TOGGL_ROLE_VERSION} (failed install)"
+    [ -x "${ETCKEEPER}" ] && ((${ETCKEEPER} unclean && ${ETCKEEPER} commit "${TOGGL_ROLE_NAME} ${PREVIOUS_ROLE_VERSION}->${TOGGL_ROLE_VERSION} (failed install)") || true )
     [ -f "${TOGGL_ROLE_NOTIFIER}" ] && ${TOGGL_ROLE_NOTIFIER} "Failed to uprade ${TOGGL_ROLE_NAME}  ${PREVIOUS_ROLE_VERSION}->${TOGGL_ROLE_VERSION}"
     exit ${previous_status}
   fi
