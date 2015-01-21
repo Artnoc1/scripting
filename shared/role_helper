@@ -4,6 +4,7 @@
 
 # This file provides:
 
+# add_fw_rule - publish firewall rule
 # init_d_refresh - start init.d script if not started, else force-reload
 # logrotate_for - adds common log-rotate to path
 # package_installed - apt-get install only if not installed
@@ -24,6 +25,8 @@ set -o errexit  # abort on first unsucessfull line
 [[ -z "${TOGGL_ROLE_NAME}" ]] && (echo 'Must set TOGGL_ROLE_NAME before sourcing'; exit 99)
 [[ -z "${TOGGL_ROLE_VERSION}" ]] && (echo 'Must set TOGGL_ROLE_VERSION before sourcing'; exit 99)
 
+source '/opt/toggl/scripting/shared/shorewall_vars'
+
 ### Config
 TOGGL_ROLE_FAILED_MESSAGE=${TOGGL_ROLE_FAILED_MESSAGE:-'Failed install'}
 
@@ -32,17 +35,21 @@ TOGGL_ROLE_NOTIFIER=${TOGGL_ROLE_NOTIFIER:-'/usr/bin/team_notify'}
 
 TOGGL_ROLES_PATH=${TOGGL_ROLES_PATH:-"${TOGGL_ROLE_CONFIG_PATH}/roles"}
 TOGGL_ROLE_FILES_PATH=${TOGGL_ROLE_FILES_PATH:-"${TOGGL_ROLE_CONFIG_PATH}/files"}
+TOGGL_ROLE_FW_RULES_PATH=${TOGGL_ROLE_FW_RULES_PATH:-"${SHOREWALL_RULES_D}"}
 
 TOGGL_ROLE_VERSION_FILE="${TOGGL_ROLES_PATH}/${TOGGL_ROLE_NAME}"
 TOGGL_ROLE_FILE_LIST="${TOGGL_ROLE_FILES_PATH}/${TOGGL_ROLE_NAME}"
+TOGGL_ROLE_FW_RULE_LIST="${TOGGL_ROLE_FW_RULES_PATH}/${TOGGL_ROLE_NAME}"
 
 PREVIOUS_ROLE_VERSION='(none)'
 ETCKEEPER=/usr/bin/etckeeper
+FW_RULES_CHANGED=false
 
 ### Housekeeping
 [ -x "${ETCKEEPER}" ] && ${ETCKEEPER} unclean && (echo "Etc directory dirty, verify and commit changes"; exit 10)
 mkdir -vp "${TOGGL_ROLES_PATH}"
 mkdir -vp "${TOGGL_ROLE_FILES_PATH}"
+mkdir -vp "${TOGGL_ROLE_FW_RULES_PATH}"
 
 # Terminate early
 if [ -f "${TOGGL_ROLE_VERSION_FILE}" ] ; then
@@ -60,7 +67,20 @@ fi
 # Assume we don't finish
 echo "${TOGGL_ROLE_FAILED_MESSAGE}" > "${TOGGL_ROLE_VERSION_FILE}"
 
+if [ ! -s "${TOGGL_ROLE_FW_RULE_LIST}" ];then
+  FW_RULES_CHANGED=true
+  rm -vf  "${TOGGL_ROLE_FW_RULE_LIST}"
+fi
+
+
 ###  public api, every proc has arguments re-mapped to local's
+
+add_fw_rule(){
+  local rule_to_add=${1}
+
+  FW_RULES_CHANGED=true
+  echo "${rule_to_add}" >> "${TOGGL_ROLE_FW_RULE_LIST}"
+}
 
 init_d_refresh() {
   local script_name=${1}
@@ -203,6 +223,11 @@ __finalize(){
   local previous_status=${?}
 
   if [ ${previous_status} -eq 0 ]; then
+    if $FW_RULES_CHANGED; then
+      echo "FW rules published, will try to apply"
+      ${SHOREWALL_JOIN_RULES_COMMAND}
+    fi
+
     echo "${TOGGL_ROLE_VERSION}" > "${TOGGL_ROLE_VERSION_FILE}"
 
     [ -f "${TOGGL_ROLE_FILE_LIST}" ] && sort --unique --output="${TOGGL_ROLE_FILE_LIST}" "${TOGGL_ROLE_FILE_LIST}"
