@@ -67,8 +67,8 @@ fi
 # Assume we don't finish
 echo "${TOGGL_ROLE_FAILED_MESSAGE}" > "${TOGGL_ROLE_VERSION_FILE}"
 
-if [ ! -s "${TOGGL_ROLE_FW_RULE_LIST}" ];then
-  FW_RULES_CHANGED=true
+if [ -s "${TOGGL_ROLE_FW_RULE_LIST}" ];then
+  FW_RULES_CHANGED='true'
   rm -vf  "${TOGGL_ROLE_FW_RULE_LIST}"
 fi
 
@@ -78,7 +78,6 @@ fi
 add_fw_rule(){
   local rule_to_add=${1}
 
-  FW_RULES_CHANGED=true
   echo "${rule_to_add}" >> "${TOGGL_ROLE_FW_RULE_LIST}"
 }
 
@@ -223,7 +222,7 @@ __finalize(){
   local previous_status=${?}
 
   if [ ${previous_status} -eq 0 ]; then
-    if $FW_RULES_CHANGED; then
+    if [ $FW_RULES_CHANGED = 'true' -o -s "${TOGGL_ROLE_FW_RULE_LIST}" ]; then
       echo "FW rules published, will try to apply"
       ${SHOREWALL_JOIN_RULES_COMMAND}
     fi
