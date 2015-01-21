@@ -1,0 +1,4 @@
+SHOREWALL_RULES_SEED='/opt/toggl/scripting/etc/shorewall/rules_seed'
+SHOREWALL_RULES_D='/opt/toggl/scripting/etc/shorewall/rules.d'
+SHOREWALL_JOIN_RULES_COMMAND='/opt/toggl/scripting/bin/shorewall_join_rules'
+SHOREWALL_CONFIG_DIR='/etc/shorewall'

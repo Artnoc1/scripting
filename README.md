@@ -37,12 +37,15 @@ Files
     in cron, to receive email only on error
  * `bootstrap`  
     easy install/update this repository in local `/opt/toggl/scripting`
+ *  `shorewall_join_rules`
+    will merge configs in rules.d folder into shorewall rule's file
 
 ### Shared
   Files meant to be sourced by other scripts
 
  * `generic`  
    Basic logging and error handling, default script template
- 
- * `role_helper`  
+ * `role_helper`
    Helper functions for server service/role manager
+ * `shorewall_vars`
+   Shorewall related configuration variables

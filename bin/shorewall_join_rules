@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -o pipefail
+set -o errtrace
+set -o nounset
+set -o errexit
+set -o xtrace
+
+SHOREWALL_TEST_DIR='/tmp/shorewall_test'
+source '/opt/toggl/scripting/shared/shorewall_vars'
+
+# start by checking if current config is valid
+shorewall check
+# and that firewall is already running
+/etc/init.d/shorewall status
+
+# fail if no seed is configured for system
+if [ ! -s "${SHOREWALL_RULES_SEED}" ]; then
+  echo "shorewall rules seed missing!"
+  echo "Read man shorewall-rules and create your default rules in ${SHOREWALL_RULES_SEED}"
+  exit 10
+fi
+
+# Prepare sources
+mkdir -pv "${SHOREWALL_RULES_D}"
+# blank file will make cat * possible later.
+touch "${SHOREWALL_RULES_D}/now"
+
+# prepare test location
+rm -rvf "${SHOREWALL_TEST_DIR}"
+cp -rvf ${SHOREWALL_CONFIG_DIR}/. "${SHOREWALL_TEST_DIR}/"
+cp -rvf "${SHOREWALL_RULES_SEED}" "${SHOREWALL_TEST_DIR}/rules"
+cat ${SHOREWALL_RULES_D}/* | sort | uniq >> "${SHOREWALL_TEST_DIR}/rules"
+echo '# Above rules are added via roles:' >> "${SHOREWALL_TEST_DIR}/rules"
+
+# test in testing
+shorewall check "${SHOREWALL_TEST_DIR}"
+
+# arm real things
+cp -rvf "${SHOREWALL_TEST_DIR}/." "${SHOREWALL_CONFIG_DIR}/"
+shorewall check
+shorewall restart
