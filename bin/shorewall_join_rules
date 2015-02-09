@@ -30,7 +30,7 @@ rm -rvf "${SHOREWALL_TEST_DIR}"
 cp -rvf ${SHOREWALL_CONFIG_DIR}/. "${SHOREWALL_TEST_DIR}/"
 cp -rvf "${SHOREWALL_RULES_SEED}" "${SHOREWALL_TEST_DIR}/rules"
 echo '#### Bellow rules are added via roles!' >> "${SHOREWALL_TEST_DIR}/rules"
-cat ${SHOREWALL_RULES_D}/* | sort | uniq >> "${SHOREWALL_TEST_DIR}/rules"
+cat ${SHOREWALL_RULES_D}/* | sort -r | uniq >> "${SHOREWALL_TEST_DIR}/rules"
 echo '#### Above rules are added via roles!' >> "${SHOREWALL_TEST_DIR}/rules"
 
 # test in testing
