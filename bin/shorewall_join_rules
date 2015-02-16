@@ -8,6 +8,9 @@ set -o xtrace
 SHOREWALL_TEST_DIR='/tmp/shorewall_test'
 source '/opt/toggl/scripting/shared/shorewall_vars'
 
+[ -x "$(which shorewall)" ] || ( echo 'shorewall not in path: clean exit'; exit 0 )
+[ -s "/etc/init.d/shorewall" ] || ( echo 'shorewall init.d not found: clean exit'; exit 0)
+
 # start by checking if current config is valid
 shorewall check
 # and that firewall is already running
