@@ -112,10 +112,10 @@ CONFIG
 
 package_installed() {
   # package names as arguments
-
+  export DEBIAN_FRONTEND=noninteractive
   for package_name in "$@"
   do
-    dpkg --status ${package_name} >/dev/null || apt-get install ${package_name}
+    dpkg --status ${package_name} >/dev/null || apt-get install --no-upgrade  --trivial-only ${package_name}
   done
 }
 
