@@ -115,7 +115,7 @@ package_installed() {
   export DEBIAN_FRONTEND=noninteractive
   for package_name in "$@"
   do
-    dpkg --status ${package_name} >/dev/null || apt-get install --no-upgrade  --trivial-only ${package_name}
+    dpkg --status ${package_name} >/dev/null || apt-get install --no-upgrade  --assume-yes --no-install-recommends ${package_name}
   done
 }
 
