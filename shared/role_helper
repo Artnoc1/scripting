@@ -5,6 +5,7 @@
 # This file provides:
 
 # add_fw_rule - publish firewall rule
+# consul_service - add service description for consul
 # init_d_refresh - start init.d script if not started, else force-reload
 # logrotate_for - adds common log-rotate to path
 # package_installed - apt-get install only if not installed
@@ -79,6 +80,14 @@ add_fw_rule(){
   local rule_to_add=${1}
 
   echo "${rule_to_add}" >> "${TOGGL_ROLE_FW_RULE_LIST}"
+}
+
+consul_service() {
+  save_heredoc_in "/opt/consul/config/service_${TOGGL_ROLE_NAME}.json"
+
+  if [ -f '/etc/init/consul.conf' ]; then
+    reload consul
+  fi
 }
 
 init_d_refresh() {
