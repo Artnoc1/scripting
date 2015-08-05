@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+set -o pipefail
+set -o errtrace
+set -o nounset
+set -o errexit
+set +x
+
+: <<'DOCBLOCK'
+use:  "droprole role_name"
+DOCBLOCK
+
+source '/opt/toggl/scripting/shared/shorewall_vars'
+
+TOGGL_ROLE_NAME=$1
+ETCKEEPER=/usr/bin/etckeeper
+EDITOR_FILE="$HOME/.selected_editor"
+
+FILE_LIST="/opt/toggl/scripting/etc/files/${TOGGL_ROLE_NAME}"
+FW_RULE_LIST="${SHOREWALL_RULES_D}/${TOGGL_ROLE_NAME}"
+ROLE_VERSION_FILE="/opt/toggl/scripting/etc/roles/${TOGGL_ROLE_NAME}"
+
+source "${EDITOR_FILE}"
+
+# etckeeper check
+[ -x "${ETCKEEPER}" ] && ${ETCKEEPER} unclean && (echo "Etc directory dirty, verify and commit changes"; exit 10)
+
+edit_role_file(){
+  local file_name=${1}
+  echo "editing: $file_name"
+  # if file not blank: allow edit it (to zero)
+  if [ -s "${file_name}" ]; then
+     ${SELECTED_EDITOR} "${file_name}"
+  fi
+
+  if [ -f "${file_name}" ]; then
+    # drop file if it is empty now!
+    [ -s "${file_name}" ] || rm -v "${file_name}"
+  fi
+}
+
+# role files
+if [ -s "${FILE_LIST}" ];  then
+  while read -u 10 file_name; do
+  edit_role_file "$file_name"
+done 10<"${FILE_LIST}"
+fi
+
+
+[ -f "${FILE_LIST}" ] && rm -v "${FILE_LIST}"
+
+# shorewall
+[ -f "${ROLE_VERSION_FILE}" ] && rm -v "${ROLE_VERSION_FILE}"
+
+# role version
+[ -f "${FW_RULE_LIST}" ] && rm -v "${FW_RULE_LIST}"
+
+# etckeeper commit
+[ -x "${ETCKEEPER}" ] && ((${ETCKEEPER} unclean && ${ETCKEEPER} commit "Dropped ${TOGGL_ROLE_NAME}") || true )
