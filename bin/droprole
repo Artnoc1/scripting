@@ -57,3 +57,9 @@ fi
 
 # etckeeper commit
 [ -x "${ETCKEEPER}" ] && ((${ETCKEEPER} unclean && ${ETCKEEPER} commit "Dropped ${TOGGL_ROLE_NAME}") || true )
+
+
+# reload consul if exists
+if [ -f '/etc/init/consul.conf' ]; then
+  reload consul
+fi
