@@ -6,6 +6,7 @@
 
 # add_fw_rule - publish firewall rule
 # consul_service - add service description for consul
+# cron_job - adds cronjob with correct permissions under /etc/cron.d
 # init_d_refresh - start init.d script if not started, else force-reload
 # logrotate_for - adds common log-rotate to path
 # package_installed - apt-get install only if not installed
@@ -90,6 +91,14 @@ consul_service() {
   if [ -f '/etc/init/consul.conf' ]; then
     reload consul
   fi
+}
+
+cron_job() {
+  local cron_job_file=${1:-"${TOGGL_ROLE_NAME}"}
+  local cron_job_path="/etc/cron.d/${cron_job_file}"
+
+  save_heredoc_in "${cron_job_path}"
+  chmod -v 644 "${cron_job_path}"
 }
 
 init_d_refresh() {
