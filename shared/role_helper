@@ -89,7 +89,7 @@ consul_service() {
   save_heredoc_in "/opt/consul/config/service_${service_file}.json"
 
   if [ -f '/etc/init/consul.conf' ]; then
-    reload consul
+    reload consul || start consul
   fi
 }
 
