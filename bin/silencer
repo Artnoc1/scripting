@@ -4,9 +4,7 @@
 # Published under New BSD license
 set -o errexit
 
-COMMAND_TO_EXEC=$@
-
 source  '/opt/toggl/scripting/shared/generic'
 
-log "Running: ${COMMAND_TO_EXEC}"
-${COMMAND_TO_EXEC}
+log "Running: $*"
+"$@"
