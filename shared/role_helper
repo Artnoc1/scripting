@@ -205,7 +205,7 @@ upstart_sudo_launcher(){
   local sudoers_file="/etc/sudoers.d/${service_name}"
   local stop_start_file="/usr/bin/${service_name}_force_restart"
 
-  status ${upstart_service_name}
+  /sbin/status ${upstart_service_name} ${upstart_args}
   for action_name in start status reload restart stop; do
     local launcher_path="/usr/bin/${service_name}_${action_name}"
     save_heredoc_in "${launcher_path}" <<-COMMAND_SCRIPT
