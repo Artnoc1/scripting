@@ -85,11 +85,15 @@ add_fw_rule(){
 
 consul_service() {
   local service_file=${1:-"${TOGGL_ROLE_NAME}"}
+  local service_config_file="/opt/consul/config/service_${service_file}.json"
+  save_heredoc_in "${service_config_file}"
 
-  save_heredoc_in "/opt/consul/config/service_${service_file}.json"
+  if [ -x '/opt/consul/current/bin/consul' ]; then
+    /opt/consul/current/bin/consul configtest -config-file "${service_config_file}"
 
-  if [ -f '/etc/init/consul.conf' ]; then
-    reload consul || start consul
+    if [ -f '/etc/init/consul.conf' ]; then
+      reload consul || start consul
+    fi
   fi
 }
 
