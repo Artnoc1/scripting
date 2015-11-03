@@ -7,6 +7,7 @@
 # add_fw_rule - publish firewall rule
 # consul_service - add service description for consul
 # cron_job - adds cronjob with correct permissions under /etc/cron.d
+# here_sudoer - add and validate sudoers.d file
 # init_d_refresh - start init.d script if not started, else force-reload
 # logrotate_for - adds common log-rotate to path
 # package_installed - apt-get install only if not installed
@@ -103,6 +104,18 @@ cron_job() {
 
   save_heredoc_in "${cron_job_path}"
   chmod -v 644 "${cron_job_path}"
+}
+
+here_sudoer() {
+  local file_name=${1:-"${TOGGL_ROLE_NAME}"}
+  local sudoers_file="/etc/sudoers.d/${file_name}"
+
+  # this will consume provided heredoc
+  save_heredoc_in "${sudoers_file}"
+  echo "# check with  visudo -c -f ${sudoers_file}" >> ${sudoers_file}
+
+  visudo -c -f ${sudoers_file} || (rm -rvf ${sudoers_file} && echo 'invalid sudoers file' && exit 1)
+  chmod 0440 ${sudoers_file}
 }
 
 init_d_refresh() {
@@ -206,7 +219,6 @@ upstart_sudo_launcher(){
   local user_name=${2}
   local upstart_args=${3:-''}
   local service_name=${4:-"${1}"}
-  local sudoers_file="/etc/sudoers.d/${service_name}"
   local stop_start_file="/usr/bin/${service_name}_force_restart"
 
   /sbin/status ${upstart_service_name} ${upstart_args}
@@ -226,9 +238,7 @@ COMMAND_SCRIPT
 COMMAND_SCRIPT
   chmod a+x ${stop_start_file}
 
-
-   save_heredoc_in ${sudoers_file} <<-SUDOERS
-#check with  visudo -c -f ${sudoers_file}
+  here_sudoer "${service_name}" <<-SUDOERS
 ${user_name} ALL=(ALL) NOPASSWD: /usr/bin/${service_name}_start
 ${user_name} ALL=(ALL) NOPASSWD: /usr/bin/${service_name}_status
 ${user_name} ALL=(ALL) NOPASSWD: /usr/bin/${service_name}_reload
@@ -236,9 +246,6 @@ ${user_name} ALL=(ALL) NOPASSWD: /usr/bin/${service_name}_restart
 ${user_name} ALL=(ALL) NOPASSWD: /usr/bin/${service_name}_stop
 ${user_name} ALL=(ALL) NOPASSWD: ${stop_start_file}
 SUDOERS
-
-  visudo -c -f ${sudoers_file} || (rm -rvf ${sudoers_file} && echo 'invalid sudoers file' && exit 1)
-  chmod 0440 ${sudoers_file}
 }
 
 ### private stuff, do not call directly.
