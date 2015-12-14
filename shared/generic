@@ -3,7 +3,7 @@
 # Published under New BSD license
 
 # Error handling and logging
-LOG_FILE_NAME=${LOG_FILE_NAME:-"$(basename $0 .sh).log"}
+LOG_FILE_NAME=${LOG_FILE_NAME:-"$(dirname $0)/$(basename $0 .sh).log"}
 LOG_LINES_TO_SHOW_ON_ERROR=${LOG_LINES_TO_SHOW_ON_ERROR:-'20'}
 
 set -o pipefail
