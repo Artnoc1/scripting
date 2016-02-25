@@ -20,8 +20,8 @@
 
 set -o pipefail # trace ERR through pipes
 set -o errtrace # trace ERR through functions
-set -o nounset  # fail if used unuset variable
-set -o errexit  # abort on first unsucessfull line
+set -o nounset  # fail if used unset variable
+set -o errexit  # abort on first unsuccessful line
 
 # This file contains helpers for role manager.
 # following two variables must be set before including fhis file:
