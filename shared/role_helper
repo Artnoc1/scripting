@@ -199,7 +199,7 @@ syslog_tag_rotate(){
 
   save_heredoc_in "/etc/rsyslog.d/12-${syslog_tag}.conf" <<-CONFIG
   :syslogtag, isequal, "${syslog_tag}:" -/var/log/${syslog_tag}/service.log
-  & ~
+  & stop
 CONFIG
 
   /sbin/restart rsyslog >/dev/null 2>&1
